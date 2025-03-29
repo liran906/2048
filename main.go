@@ -6,20 +6,20 @@ import (
 	"strings"
 )
 
-var leftFlag bool
-var upFlag bool
+var leftFlag bool // if display is on a "left" status
+var upFlag bool   // if display is on a "up" status
 
 func main() {
 	fmt.Println("___________________________")
 	fmt.Println("|==== Enjoy a game of ====|")
 	game := createNewGame()
-	printGame(game, 0, 0)
 	score := 0
 
 	for moves := 0; !loseGame(game); moves++ {
 		var nextstep string = "n"
+		printGame(game, score, moves)
 
-		// for invalid steps
+		// loop for invalid steps
 		for !strings.Contains("asdwASDW", nextstep) || len(nextstep) != 1 {
 			fmt.Printf("Please determine next move: (W/S/A/D)")
 			fmt.Scan(&nextstep)
@@ -36,7 +36,7 @@ func main() {
 		} else if upFlag && strings.Contains("Ss", nextstep) {
 			upFlag = false
 		}
-		printGame(game, score, moves)
+
 	}
 	fmt.Println("\n=======  Game Over  =======")
 	fmt.Printf("Congrats! Your Score: % 4d!\n", score)
@@ -88,8 +88,10 @@ func printGame(game [][]int, score int, moves int) {
 	}
 }
 
-// adding random 2 or 4 in the 0
 func addRandomNums(game [][]int, nums int) {
+	/*
+		update game status by changing random `nums` blocks with 0 to 2 or 4
+	*/
 	for range nums {
 		emptyCount := 0
 		for r := range game {
@@ -142,26 +144,29 @@ func loseGame(game [][]int) bool {
 }
 
 func nextGame(game [][]int, move string) (count int) {
+	/*
+		update game status and return the score by this move
+	*/
 	if move == "A" || move == "a" {
 		for row := range game {
-			count += moveAndMergeLeft(game[row])
+			count = moveAndMergeLeft(game[row])
 		}
 	} else if move == "W" || move == "w" {
 		transpose(game)
 		for row := range game {
-			count += moveAndMergeLeft(game[row])
+			count = moveAndMergeLeft(game[row])
 		}
 		transpose(game)
 	} else if move == "S" || move == "s" {
 		rotateCW(game)
 		for row := range game {
-			count += moveAndMergeLeft(game[row])
+			count = moveAndMergeLeft(game[row])
 		}
 		rotateCCW(game)
 	} else if move == "D" || move == "d" {
 		flipHorizontal(game)
 		for row := range game {
-			count += moveAndMergeLeft(game[row])
+			count = moveAndMergeLeft(game[row])
 		}
 		flipHorizontal(game)
 	}
@@ -169,9 +174,10 @@ func nextGame(game [][]int, move string) (count int) {
 	return
 }
 
-// return the score by this step
 func moveAndMergeLeft(row []int) (count int) {
-	// merge same numbers
+	/*
+		merge blocks and return the score by this step
+	*/
 	for i := range row {
 		if row[i] != 0 {
 			for j := i + 1; j < len(row); j++ {
@@ -187,7 +193,7 @@ func moveAndMergeLeft(row []int) (count int) {
 		}
 	}
 
-	// move all zeros to right side
+	// swap left non-zero values with right zero values
 	for l, r := 0, 0; r < len(row); r++ {
 		if row[r] != 0 {
 			row[l], row[r] = row[r], row[l]
