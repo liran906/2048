@@ -10,7 +10,8 @@ var leftFlag bool
 var upFlag bool
 
 func main() {
-	fmt.Println("|=== Enjoy a game of ===|")
+	fmt.Println("___________________________")
+	fmt.Println("|==== Enjoy a game of ====|")
 	game := createNewGame()
 	printGame(game, 0, 0)
 	score := 0
@@ -146,11 +147,11 @@ func nextGame(game [][]int, move string) (count int) {
 			count += moveAndMergeLeft(game[row])
 		}
 	} else if move == "W" || move == "w" {
-		rotateCCW(game)
+		transpose(game)
 		for row := range game {
 			count += moveAndMergeLeft(game[row])
 		}
-		rotateCW(game)
+		transpose(game)
 	} else if move == "S" || move == "s" {
 		rotateCW(game)
 		for row := range game {
@@ -158,13 +159,11 @@ func nextGame(game [][]int, move string) (count int) {
 		}
 		rotateCCW(game)
 	} else if move == "D" || move == "d" {
-		rotateCW(game)
-		rotateCW(game)
+		flipHorizontal(game)
 		for row := range game {
 			count += moveAndMergeLeft(game[row])
 		}
-		rotateCCW(game)
-		rotateCCW(game)
+		flipHorizontal(game)
 	}
 	addRandomNums(game, 1)
 	return
@@ -198,32 +197,37 @@ func moveAndMergeLeft(row []int) (count int) {
 	return
 }
 
-func rotateCCW(game [][]int) {
+func transpose(game [][]int) {
 	n := len(game)
-	// transpose matrix first
-	for r := 0; r < n; r++ {
+	for r := range n {
 		for c := r; c < n; c++ {
 			game[r][c], game[c][r] = game[c][r], game[r][c]
 		}
 	}
-	// then flip horizonal
-	for r := 0; r < n/2; r++ {
+}
+
+func flipVertical(game [][]int) {
+	n := len(game)
+	for r := range n / 2 {
 		game[r], game[n-r-1] = game[n-r-1], game[r]
 	}
 }
 
-func rotateCW(game [][]int) {
+func flipHorizontal(game [][]int) {
 	n := len(game)
-	// transpose matrix first
-	for r := 0; r < n; r++ {
-		for c := r; c < n; c++ {
-			game[r][c], game[c][r] = game[c][r], game[r][c]
-		}
-	}
-	// then flip vertical
-	for r := 0; r < n; r++ {
-		for c := 0; c < n/2; c++ {
+	for r := range n {
+		for c := range n / 2 {
 			game[r][c], game[r][n-c-1] = game[r][n-c-1], game[r][c]
 		}
 	}
+}
+
+func rotateCW(game [][]int) {
+	transpose(game)
+	flipHorizontal(game)
+}
+
+func rotateCCW(game [][]int) {
+	transpose(game)
+	flipVertical(game)
 }
